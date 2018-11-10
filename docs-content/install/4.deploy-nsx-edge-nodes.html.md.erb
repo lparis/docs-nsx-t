@@ -1,0 +1,112 @@
+---
+title: Deploy NSX Edge Nodes
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+In this section you deploy 2 or more NSX Edge Nodes, which provide the bridge between the virtual network environment implemented using NSX-T and the physical network. Edge Nodes also run load balancers for PKS API traffic, pod load balancer services, and pod ingress.
+
+PKS requires at least two Edge Nodes. In addition, PKS requires the Edge Node Large VM (8 vCPU, 16 GB of RAM, and 120 GB of storage). When deploying each Edge Node, you must connect the vNICs of the NSX Edge VMs to an appropriate PortGroup for your environment as described here.
+
+## Supporting documentation
+
+For more information, see the following topics in the in the VMware NSX-T documentation:
+
+- [Edge Node Requirements](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-11417AA2-5EBC-49C7-8A86-EB94604261A6.html)
+- [Edge Node Installation using vSphere Client](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-AECC66D0-C968-4EF2-9CAD-7772B0245BF6.html)
+- [Edge Node Installation using ofvtool CLI](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-BF5EC490-CB5D-4FA9-AEC8-BB1A85E55B01.html)
+
+## Prerequisites
+
+- Part 1: Deploy NSX Manager (= NSX Unified Appliance)					
+- Part 2: Deploy NSX Controllers																	
+- Part 3: Create NSX Cluster (Management Plane and Cluster Control Plane)	 	
+
+##<a id='deploy-nsx-edge-node-steps'></a> Deploy NSX Edge Node
+
+Repeat the following procedure for each Edge Node you want to deploy for PKS.
+
+1. Download the NSX Edge OVA file (NSX-unified-appliance.ova), or obtain a network location.
+
+1. Log in to vCenter and select Deploy OVF Template.
+
+  <img src="images/nsxt/nsx-manager/install-nsx-edge-01.png">
+
+1. Select template. Browse to and select the OVA file you downloaded, or enter a network path.
+
+  <img src="images/nsxt/nsx-manager/install-nsx-edge-02.png">
+
+1. Select name and location. Enter VM name NSX Manager and select the Datacenter.
+
+  <img src="images/nsxt/nsx-manager/install-nsx-edge-03.png">
+
+1. Select a resource. Deploy the Edge Node on an Edge Cluster. In case of collapsed MGMT/Edge cluster configuration, deploy Edge VM on MGMT Cluster.
+
+  <img src="images/nsxt/nsx-manager/install-nsx-edge-04.png">
+
+1. Review details. Check your settings up to this point.
+
+  <img src="images/nsxt/nsx-manager/install-nsx-edge-05.png">
+
+1. Select configuration. Choose the type and size of the VM. For PKS you must use either the Large VM or Bare Metal Edge. To install a bare metal Edge Node, refer to the NSX documentation.
+
+  <img src="images/nsxt/nsx-manager/install-nsx-edge-06.png">
+
+1. Select storage. Specify the storage format, policy, and datastore. This will depend on the type of storage you have set up for your vSphere environment. Refer to the vSphere Storage Recommendations for PKS section in the Prerequisites for guidance.
+
+  <img src="images/nsxt/nsx-manager/install-nsx-edge-07.png">
+
+1. Select networks. Choose the following networks:
+	- Network 0 is for management purposes; select the standard VM Network.
+	- Network 1 is for the TEP (Tunnel Endpoint); select NSX-EDGE-VTEP-PG.
+	- Network 2 is for uplink connectivity to external physical router; select the VM Network.
+	- Network 3 is not used; select any PG.
+
+  <img src="images/nsxt/nsx-manager/install-nsx-edge-08.png">
+
+1. Configure the following Application properties for the NSX Edge VM.
+	- Enter the password for NSX CLI administrator.
+	- Enter the user name (default admin) for the NSX CLI administrator.
+	- Enter the password for the NSX CLI auditor.
+	- Enter the user name (default audit) for the NSX CLI auditor. 
+	- Leave the Manager fields empty (blank).
+	- Enter the system root user password.
+
+	<img src="images/nsxt/nsx-manager/install-nsx-edge-09.png">
+
+  	<img src="images/nsxt/nsx-manager/install-nsx-edge-10.png">
+
+	<p class="note"><strong>Note</strong>: Parameters for NSX Manager are not needed during EDGE deployment phase. You register each Edge Node with the NSX Manager at the end of this procedure.</p>
+
+1. Configure DNS and network properties.
+	- Enter the IP address for the DNS server for your environment.
+	- Typically you don’t need to provide the Domain Search List.
+	- Enter the Default IPv4 Gateway, for example: 10.40.206.125.
+	- Enter the hostname for this VM, for example: nsx-manager.
+	- Enter the IP address for the first interface, for example: 10.40.206.2.
+	- Enter the netmask IP address for the first interface, for example: 255.255.255.128.
+
+	  	<img src="images/nsxt/nsx-manager/install-nsx-edge-11.png">
+
+	  	<img src="images/nsxt/nsx-manager/install-nsx-edge-12.png">
+
+1. Services Configuration
+	- Select Allow root SSH logins.
+	- Select Enable SSH.
+	- Enter the IP address for the NTP server, such as 10.113.60.175.
+
+	  	<img src="images/nsxt/nsx-manager/install-nsx-edge-13.png">
+
+1. Ready to complete. Click Finish to deploy the VM.
+
+	  	<img src="images/nsxt/nsx-manager/install-nsx-edge-14.png">
+
+##<a id='verify-nsx-edge-node-deployment'></a> Verify NSX Edge Node Deployment
+
+1. Power on the Edge VM VM. 
+1. Ping the Edge VM. Get the IP address for the NSX Manager from the Summary tab in vCenter. Verify that you can ping the host (ping 10.196.188.21, for example).
+1. SSH to the Edge VM. Use the IP address for the NSX Manager to remotely connect using SSH. From Unix hosts use the command ssh admin@10.196.188.21, for example. On Windows use Putty and provide the IP address. Enter the CLI admin user name and password that you defined in the Customize template > Application section.
+1. Review NSX CLI usage. Once you are logged into the NSX Manager VM, enter ? to view the command usage and options for the NSX CLI.
+
+

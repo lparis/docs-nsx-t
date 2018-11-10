@@ -1,0 +1,38 @@
+---
+title: Enable Respoitory Service on NSX Manager
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+To enable VIB installation from the NSX Manager repository, the repository service needs to be be enabled on NSX manager.
+
+## Supporting documentation
+
+For more information, see the following topic in the in the VMware NSX-T documentation:
+
+[Prepare Host Clusters for NSX](https://docs.vmware.com/en/VMware-NSX-for-vSphere/6.3/com.vmware.nsx.install.doc/GUID-07ED3DD6-BF82-4097-8702-4587FA88CFE2.html).
+
+## Prerequisites
+
+- Part 1: Deploy NSX Manager (= NSX Unified Appliance)					
+- Part 2: Deploy NSX Controllers																	
+- Part 3: Create NSX Cluster (Management Plane and Cluster Control Plane)	
+- Part 4: Deploy NSX Edge Nodes
+- Part 5: Register NSX Edge Nodes				
+
+## ##<a id='deploy-nsx-edge-node-steps'></a> Enable Respository Serice on NSX Manager
+
+1. SSH to NSX Manager.
+
+	See Part 1 for guidance on doing this.
+
+1. Run the following command:
+
+		nsx-manager> set service install-upgrade enable
+
+
+
+
+
+

@@ -1,0 +1,119 @@
+---
+title: Create Edge Transport Node for PKS
+owner: NSX-T
+---
+
+<strong><%= modified_date %></strong>
+
+In this section you create NSX Edge Transport Nodes. The Transport Node is what allow Edge Node to exchange traffic for Virtual Networks among other NSX Nodes.
+
+	* Add both `tz-vlan` and `tz-overlay` NSX Transport Zones to the NSX Edge Transport Nodes. Controller Connectivity and Manager Connectivity should be **UP**.
+	* Refer to the MAC addresses of the Edge VM interfaces you deployed to deploy your virtual NSX Edges:
+  		* Connect the `hs-overlay` N-VDS to the vNIC (`fp-eth#`) that matches the MAC address of the second NIC from your deployed Edge VM.
+  		* Connect the `hs-vlan` N-VDS to the vNIC (`fp-eth#`) that matches the MAC address of the third NIC from your deployed Edge VM.
+
+## Supporting documentation
+
+For more information, see the following topics in the in the VMware NSX-T documentation:
+
+[Create an NSX Edge Transport Node](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-53295329-F02F-44D7-A6E0-2E3A9FAE6CF9.html)
+
+## Prerequisites
+
+- Part 1: Deploy NSX Manager (= NSX Unified Appliance)					
+- Part 2: Deploy NSX Controllers																	
+- Part 3: Create NSX Cluster (Management Plane and Cluster Control Plane)	
+- Part 4: Deploy NSX Edge Nodes
+- Part 5: Register NSX Edge Nodes
+- Part 6: Enable Repository Service for VIB on NSX Manager 
+- Part 7: Create TEP IP Pool
+- Part 8: Create Overlay TZ
+- Part 9: Create VLAN TZ
+- Part 10: Create Uplink Profile for Edge Nodes
+
+###<a id='create-edge-tranport-node'></a>Create Edge Transport Node
+
+1. Log in to the NSX Manager web interface (`https://<NSX Manager IP>`).
+
+1. Go to Fabric > Nodes > Edges.
+
+1. Select an Edge Node.
+
+1. Click Actions > Configure as Transport.
+
+  <img src="images/nsxt/nsx-misc/edge-transport-node-01.png">
+
+1. In the General tab, enter the name: `edge-TN1`.
+
+1. Select both Transport Zones:
+
+	TX-Overlay (Overlay)
+	TX-VLAN (VLAN)
+
+  <img src="images/nsxt/nsx-misc/edge-transport-node-02.png">
+
+1. Select the **Host Switches** tab.
+
+1. Configure the first node switch as follows:
+
+	Edge Switch Name: `hostswitch1`
+	Uplink Profile: `edge-uplink-profile`
+	IP Assignment: `Use IP Pool`
+	IP Pool: `TEP-ESXi-POOL`
+	virtual NICs: `fp-eth0` (corresponds to Edge VM vnic1--second vnic)
+
+  <img src="images/nsxt/nsx-misc/edge-transport-node-03.png">
+
+1. Click **Add New Node Switch**.
+
+1. Configure the second node switch as follows:
+
+	Edge Switch Name: `hostswitch2`
+	Uplink Profile: `edge-uplink-profile`
+	virtual NICs: `fp-eth1` (corresponds to Edge VM vnic2--third vnic)
+
+  <img src="images/nsxt/nsx-misc/edge-transport-node-04.png">
+
+1. Click Save.
+
+##<a id='verify-tz-vlan'></a> Verify TZ-VLAN
+
+1. Select Fabric > Nodes > Edges.
+
+1. Verify that Controller Connectivty and Manager Connectivity are 'UP'.
+
+  <img src="images/nsxt/nsx-misc/edge-transport-node-05.png">
+
+1. Select Fabric > Nodes > Transport Node.
+
+1. Verify that the configuration state is Success.
+
+  <img src="images/nsxt/nsx-misc/edge-transport-node-06.png">
+
+1. SSH to NSX Edge VM.
+
+1. Run the following command and verify that the Edge transport node is "connected" to the Controller.
+
+		nsx-edge-1> get controllers
+
+1. Verify that the Edge transport node is "connected" to the Controller. For example:
+
+	 	Controller IP    Port     SSL         Status       Is Physical Master   Session State  Controller FQDN
+	  	10.40.206.4     1234   enabled     connected             true               up               NA       
+	  	10.40.206.5     1234   enabled      not used            false              null              NA       
+	  	10.40.206.3     1234   enabled      not used            false              null              NA
+
+1. Repeat the same operations for the second Edge Transport Node (Edge-TN2).
+
+1. Select Fabric > Nodes > Transport Nodes and verify Edge-TN2.
+
+  <img src="images/nsxt/nsx-misc/edge-transport-node-07.png">
+
+1. Select Fabric > Nodes > Edges and verify Edge-TN2.
+
+  <img src="images/nsxt/nsx-misc/edge-transport-node-08.png">
+
+
+
+
+

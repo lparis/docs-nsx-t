@@ -1,0 +1,142 @@
+---
+title: Create NSX Clusters (Management Plane and Cluster Control Plane)
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+In this section you create the NSX Clusters for the PKS Management and Control Planes.
+
+## Supporting documentation
+
+For more information, see the following topics in the in the VMware NSX-T documentation:
+
+- [Join NSX Controller with NSX Manager](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-05434745-7D74-4DA8-A68E-9FE17093DA7B.html#GUID-05434745-7D74-4DA8-A68E-9FE17093DA7B)
+- [Initialize Control Cluster](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-273F6344-7212-4105-9FBA-A872CD75803F.html)
+
+## Prerequisites
+
+These instructions assume you have completed the following prerequisites:
+
+- Part 1: Deploy NSX Manager          
+- Part 2: Deploy NSX Controllers                                  
+
+## <a id='deploy-nsx-controller'></a>Deploy NSX Controller
+
+1. SSH to the NSX Manager host using your admin credentials. For example: `ssh admin@10.40.206.1`.
+
+1. Retrieve the NSX Manager API thumbprint.
+   
+   The thumbprint is a 64-byte alphanumeric string. You use this thumbprint to register all NSX Controller nodes with the NSX Manager.
+   Use the following command to retrieve the thumbprint:
+
+        NSX-MGR>get certificate api thumbprint
+
+1.  Register the NSX Controller with NSX Manager using the NSX Manager API thumbprint.
+
+    SSH to NSX Controller 1.
+    Run the following command; replace the NSX Manager IP address, API thumbprint, and admin credentials with those for your environment:
+
+        NSX-CTRL-1> join management-plane 10.40.206.2 thumbprint API-THUMBPRINT username admin password PASSWORD
+
+    Verify you see the message Node successfully registered and controller restarted.
+
+1. If you are deploying more than 1 NSX Controller, SSH to each NSX Controller and repeat the same process, for example:
+
+        NSX-CTRL-X> join management-plane 10.40.206.2 thumbprint API-THUMBPRINT username admin password PASSWORD
+
+        Node successfully registered and controller restarted
+
+1. Set the shared-secret for each NSX Controller.
+
+  SSH to NSX Controller 1.
+  Run the following command to set a shared secret for the NSX Controller; replace SHARED-SECRET with a strong passphrase.
+
+        NSX-CTRL-1> set control-cluster security-model shared-secret secret SHARED-SECRET
+
+  Verify you see the message `Security secret successfully set on the node.
+
+  Repeat this process for NSX Controller 2 and NSX Controller 3 if you are deploying them; use the same shared secret for each.
+
+        NSX-CTRL-2> set control-cluster security-model shared-secret secret SAME-SHARED-SECRET
+        Security secret successfully set on the node
+
+1. Initialize NSX Controller 1 as the control-cluster.
+
+        NSX-CTRL-1> initialize control-cluster
+        Control cluster initialization successful.
+
+1. Get control-cluster thumbprints for NSX-CTRL-2 and NSX-CTRL-3 (skip if you are deploying 1).
+
+        NSX-CTRL-2> get control-cluster certificate thumbprint bec2e500eea89ddb71e0…f63131913769340af6c74e
+        NSX-CTRL-3> get control-cluster certificate thumbprint dbb7b656092f9495…165cbdfb4ba10906d444bee359
+
+1.  Add all other NSX Controllers to the control cluster.
+  
+  Use the following command to join the control cluster.
+  Replace the IP address and control-cluster thumbprint with the respective values for the NSX Controller you are joining to the control cluster.
+
+        NSX-CTRL-1> join control-cluster 10.40.206.4 thumbprint CERT-THUMBPRINT-NSX-CTRL-2
+        Node 10.40.206.4 has successfully joined the control cluster. Please run 'activate control-cluster' command on the new node.
+        NSX-CTRL-1> join control-cluster 10.40.206.5 thumbprint CERT-THUMBPRINT-NSX-CTRL-3
+        NodeNode 10.40.206.5 has successfully joined the control cluster. Please run 'activate control-cluster' command on the new node.
+
+1.  Activate the control-cluster for each NSX Controller.
+
+  Perform this operation for each NSX Controller, even if 1 is deployed.
+
+  NSX Controller 1:
+
+        NSX-CTRL-1> activate control-cluster
+        Control cluster activation successful.
+
+  NSX Controller 2:
+
+        NSX-CTRL-2> activate control-cluster
+        Control cluster activation successful.
+
+  NSX Controller 3:
+    
+        NSX-CTRL-3> activate control-cluster
+        Control cluster activation successful.
+
+## <a id='verify-nsx-controller'></a>Verify NSX Controller Configuration
+
+1. Verify that the NSX Controller is connected to NSX Manger:
+
+        NSX-CONTROLLER-1> get managers
+        - 10.40.206.2      Connected
+ 
+1. Verify the status of the control-cluster is OK:
+
+        NSX-CONTROLLER-1> get control-cluster status
+        uuid: 615a7684-f722-4dba-9cbe-59b72974b8f6
+        is master: false          
+        in majority: true           
+        uuid               address status 
+        615a7684…          active 
+        63793019…          active 
+        91a52bfe…          active
+
+1. Verify that the Management-cluster is OK:
+
+        NSX-MGR-1-1-0> get management-cluster status
+        Number of nodes in management cluster: 1
+        - 10.40.206.2      (UUID 42048A38-…-211D248FD3B1) Online 
+        Management cluster status: STABLE
+        Number of nodes in control cluster: 3
+        - 10.40.206.4      (UUID 63793019-…-f58ad96ef27e)
+        - 10.40.206.5      (UUID 91a52bfe-…-b5a8a83b7e46)
+        - 10.40.206.3      (UUID 615a7684-…-59b72974b8f6)
+        Control cluster status: STABLE
+
+1. Verify the configuration using the NSX Manager Web UI.
+
+  Go to https://<NSX Manager IP> (here https://10.40.206.2).
+  Log in using your admin credentials..
+  Check the status of the NSX Manager and Controllers.
+  Select Dashboard → System → Overview.
+  You should see NSX Manager and all NSX Controllers with their status (all should be green).
+
+  <img src="images/nsxt/nsx-manager/install-nsx-manager-17.png">
+

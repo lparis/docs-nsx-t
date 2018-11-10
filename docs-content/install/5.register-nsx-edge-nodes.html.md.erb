@@ -1,0 +1,65 @@
+---
+title: Register NSX Edge Nodes with NSX Manager
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+In this section you register NSX Edge Nodes with NSX Manager.
+
+## Supporting documentation:
+
+For more information, see the following topic in the in the VMware NSX-T documentation:
+
+[Join NSX Edge with the Management Plane](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-11BB4CF9-BC1D-4A76-A32A-AD4C98CBF25B.html)
+
+## Prerequisites
+
+- Part 1: Deploy NSX Manager (= NSX Unified Appliance)					
+- Part 2: Deploy NSX Controllers																	
+- Part 3: Create NSX Cluster (Management Plane and Cluster Control Plane)	
+- Part 4: Deploy NSX Edge Nodes
+
+##<a id='deploy-nsx-edge-node-steps'></a> Register NSX Edge with NSX Manager
+
+Complete this procedure for each Edge Node.
+
+1. Get the NSX Manager thumbprint.
+
+	Retrieve it from NSX Manager CLI using the command `get certificate api thumbprint`.
+
+1. SSH to NSX Edge VM and register the Edge Nodes.
+	
+		nsx-edge-1> join management-plane 10.40.206.2 username admin password PASSWORD thumbprint 272e6ba6b6f6722e269f615d64931064e0393d343ab6fa22516d876f45e7f333
+
+		Node successfully registered as Fabric Node: 04c4445c-dc80-11e7-b168-00505684b48d
+
+		NSX-edge-2> join management-plane 10.40.206.2 username admin password PASSWORD thumbprint 272e6ba6b6f6722e269f615d64931064e0393d343ab6fa22516d876f45e7f333
+
+		Node successfully registered as Fabric Node: 21cedf58-dc80-11e7-8c6d-00505684a24c
+
+1. Verify Edge Node registration using CLI:
+
+			nsx-edge-1> get managers
+
+			- 10.40.206.2   Connected
+
+
+			nsx-edge-1> get controllers
+
+ 			Controller IP  Port   SSL     Status    Is Physical Master  Session State Controller FQDN
+
+	(this output is expected)
+
+
+1. Verify Edge Node registration using NSX Manager Web UI.
+
+	Go to Fabric → Nodes → Edges.
+
+	You should see that each Edge Node you have registered is listed:
+
+	<img src="images/nsxt/nsx-manager/install-nsx-edge-15.png">
+
+
+
+

@@ -1,0 +1,163 @@
+---
+title: Create T0 Logical Router for PKS
+owner: NSX-T
+---
+
+<strong><%= modified_date %></strong>
+
+This section provides instructions for creating a T0 Logical Router for PKS. 
+
+T0 routers are edge routers that help route data between your non-NSX-T (such as a Physical Network) and the NSX-T network. 
+
+## Supporting documentation
+
+For more information, see the following topics in the in the VMware NSX-T documentation:
+
+- [Tier-0 Logical Router](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-DAEF8457-8363-4F33-84DA-68AA36A2DE3C.html)
+- [Create a Tier-0 Logical Router](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-A6042263-374F-4292-892E-BC86876325A4.html) 
+- [Connect a Tier-0 Logical Router to a VLAN Logical Switch in the VMware NSX-T documentation](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.admin.doc/GUID-BB4D26AD-AF81-4B7C-AA4A-366AEF6F79D2.html)
+
+## Prerequisites
+
+These instructions assume you have completed the following prerequisites:
+
+- Part 1: Deploy NSX Manager					
+- Part 2: Deploy NSX Controllers																	
+- Part 3: Create NSX Clusters	
+- Part 4: Deploy NSX Edge Nodes
+- Part 5: Register NSX Edge Nodes
+- Part 6: Enable Repository Service for VIB on NSX Manager 
+- Part 7: Create TEP IP Pool
+- Part 8: Create Overlay TZ
+- Part 9: Create VLAN TZ
+- Part 10: Create Uplink Profile for Edge Nodes
+- Part 11: Create Transport Edge Nodes
+- Part 12: Create Edge Cluster
+
+###<a id='create-vlan-ls'></a>Create VLAN Logical Switch (LS)
+
+1. Log in to the NSX Manager web interface (`https://<NSX Manager IP>`).
+
+1. Go to Switching > Switches.
+
+1. Click Add.
+
+1. Create a new LS:
+
+	Name: `uplink-LS1`
+	TZ: `TZ-VLAN`
+	VLAN: `0`
+
+  <img src="images/nsxt/nsx-misc/t0-router-01.png">
+
+1. Click Save.
+
+1. You should be able to see the new LS:
+
+  <img src="images/nsxt/nsx-misc/t0-router-02.png">
+
+##<a id='verify-t0-router'></a> Create T0 Router Instance
+
+1. Go to Routing > Routers.
+
+1. Click Add.
+
+1. Select Tier-0 Router.
+
+  <img src="images/nsxt/nsx-misc/t0-router-03.png">
+
+1. Create new T0 router as follows:
+
+	Name: `T0-LR` or `t0-pks`, for example
+	Edge Cluster: Select the `edgecluster1` or `edge-cluster-pks`, for example
+	High Availability Mode: `Active-Standby`
+
+	    <p class="note"><strong>Note</strong>: Make sure to select Active/Standby. NAT rules are be applied on T0 by NCP. If not set Active-Standby, NCP will not be able to create NAT rules on the T0 Router.</p>
+
+  <img src="images/nsxt/nsx-misc/t0-router-04.png">
+
+1. Click Save.
+
+1. You should be able to see the new T0 Router:
+
+  <img src="images/nsxt/nsx-misc/t0-router-05.png">
+
+##<a id='create-t0-uplink'></a> Create T0 Router Uplink Router Port
+
+Attach the T0 logical router to the uplink logical switch you created in Step 1. To do this, create a logical router port for ls-pks-uplink and assign an IP address and CIDR that your environment uses to route to all PKS assigned IP pools and IP blocks.
+
+1. Go to Routing > Routers.
+
+1. Select the T0 Router.
+
+1. Select Configuration > Router Ports.
+
+1. Select Tier-0 Router.
+
+  <img src="images/nsxt/nsx-misc/t0-router-06.png">
+
+1. Click Add.
+
+1. Create new T0 router port as follows:
+
+	Name: `Uplink1`
+	Type: Uplink
+	Transport Node: `edge-TN1`
+	Logical Switch: `uplink-LS1`
+	Logical Switch Port: `uplink1-port`
+	IP Address/mask: `10.40.206.24/25` (for example)
+
+  <img src="images/nsxt/nsx-misc/t0-router-07.png">
+
+1. Click Save.
+
+1. You should be able to see the new port interface:
+
+  <img src="images/nsxt/nsx-misc/t0-router-08.png">
+
+##<a id='create-static-route'></a> Define Default Static Route
+
+Configure T0 routing to the rest of your environment using the appropriate routing protocol for your environment, or by using static routes. This example uses static routing for the T0 router. The CIDR used in ip-pool-vips must route to the IP you just assigned to your t0 uplink interface.
+
+1. Go to Routing > Routers.
+
+1. Select the T0 Router.
+
+1. Select Routing > Static Routes.
+
+  <img src="images/nsxt/nsx-misc/t0-router-09.png">
+
+1. Click Add.
+
+1. Create new static route for the T0 router as follows:
+
+	Network: `0.0.0.0/0`
+	Next Hop: `10.40.206.125` (for example)
+	Admin Distance: `1`
+	Logical Router Port: `Uplink1`
+
+  <img src="images/nsxt/nsx-misc/t0-router-10.png">
+
+1. Click Save.
+
+1. You should be able to see the newly created static route:
+
+  <img src="images/nsxt/nsx-misc/t0-router-11.png">  
+
+##<a id='verify-t0-router'></a> Verify T0 Router Creation
+
+The T0 router uplink IP should be reachable from your corporate network. 
+
+1. From your local machine (laptop or worksation), ping the uplink IP address:
+
+		ping 10.40.206.24
+
+1. Verify connectivity.
+
+		PING 10.40.206.24 (10.40.206.24): 56 data bytes
+		64 bytes from 10.40.206.24: icmp_seq=0 ttl=53 time=33.738 ms
+		64 bytes from 10.40.206.24: icmp_seq=1 ttl=53 time=36.965 ms
+
+
+
+

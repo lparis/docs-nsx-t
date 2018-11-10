@@ -1,6 +1,6 @@
-## Pivotal Cloud Foundry Partners Template
+## NSX-T Documentationn for PKS
 
-This template helps partners prepare documentation for Pivotal Cloud Foundry (PCF) partner services that appear on [Pivotal Network](https://network.pivotal.io/). 
+This documentation describes how to install and configure VMware NSX-T for use with PKS. 
 
 ### <a id='overview'></a>Overview
 

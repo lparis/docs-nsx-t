@@ -1,0 +1,50 @@
+---
+title: Create TEP IP Pool
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+In this section you create the Tunnel Endpoint IP Pool for PKS.
+
+## Supporting documentation
+
+For more information, see the following topics in the in the VMware NSX-T documentation:
+
+- [Create an IP Pool for Tunnel Endpoint IP Addresses](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-E7F7322D-D09B-481A-BD56-F1270D7C9692.html)
+
+## Prerequisites
+
+- Part 1: Deploy NSX Manager (= NSX Unified Appliance)					
+- Part 2: Deploy NSX Controllers																	
+- Part 3: Create NSX Cluster (Management Plane and Cluster Control Plane)	
+- Part 4: Deploy NSX Edge Nodes
+- Part 5: Register NSX Edge Nodes
+- Part 6: Enable Repository Service for VIB on NSX Manager 		
+
+##<a id='deploy-nsx-edge-node-steps'></a> Create TEP IP Pool
+
+    <p class="note"><strong>Note</strong>: Parameters shown are for example purposes only. Yours will differ and depend on your network environment.</p>
+
+1. Log in to the NSX Manager Web UI (https://<NSX Manager IP>).
+
+1. Go to Inventory → Groups → IP Pools.
+
+1. Click Add
+
+1. Create a new IP pool:
+
+	Name: `TEP-ESXi-POOL`
+	IP Ranges: `23.23.23.1 - 23.23.23.10`
+	Gateway: 23.23.23.254
+	CIDR: 23.23.23.0/24
+	DNS Servers (optional)
+	DNS Suffix (optional)
+
+  <img src="images/nsxt/tep/tep-01.png">
+
+1. Click Save.
+
+1. Verify that you see the following configuration:
+
+  <img src="images/nsxt/tep/tep-02.png">

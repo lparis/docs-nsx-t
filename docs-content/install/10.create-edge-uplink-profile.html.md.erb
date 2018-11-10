@@ -1,0 +1,54 @@
+---
+title: Create Uplink Profile for Edge Nodes
+owner: NSX-T
+---
+
+<strong><%= modified_date %></strong>
+
+In this section you create an NSX uplink host profile for use by NSX Edge Node for PKS. 
+
+## Supporting documentation
+
+For more information, see the following topics in the in the VMware NSX-T documentation:
+
+[Create an Uplink Profile](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-50FDFDFB-F660-4269-9503-39AE2BBA95B4.html).
+
+## Prerequisites
+
+- Part 1: Deploy NSX Manager (= NSX Unified Appliance)					
+- Part 2: Deploy NSX Controllers																	
+- Part 3: Create NSX Cluster (Management Plane and Cluster Control Plane)	
+- Part 4: Deploy NSX Edge Nodes
+- Part 5: Register NSX Edge Nodes
+- Part 6: Enable Repository Service for VIB on NSX Manager 
+- Part 7: Create TEP IP Pool
+- Part 8: Create Overlay TZ
+- Part 9: Create VLAN TZ
+
+###<a id='create-objects-logical-switches'></a>Create Uplink Profile for Edge Nodes
+
+images\nsxt\nsx-misc
+
+1. Log in to the NSX Manager web interface (`https://<NSX Manager IP>`).
+
+1. Go to Fabric > Profiles > Uplink Profiles.
+
+1. Click Add.
+
+1. Create a new Uplink Profile as follows:
+
+	Name: edge-uplink-profile
+	Teaming Policy: Failover Order
+	Active Uplinks: uplink-1
+	MTU: 1600
+
+  <img src="images/nsxt/nsx-misc/edge-uplink-01.png">
+
+1. Click Save.
+
+##<a id='verify-tz-vlan'></a> Verify TZ-VLAN
+
+1. Verify that you see the TZ-VLAN transport zone:
+
+  <img src="images/nsxt/nsx-misc/edge-uplink-02.png">
+

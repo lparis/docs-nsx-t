@@ -1,0 +1,98 @@
+---
+title: Create Edge Cluster
+owner: NSX-T
+---
+
+<strong><%= modified_date %></strong>
+
+In this section you create an NSX Edge Cluster and add Edge Transport Nodes to the Edge Cluster. 
+
+## Supporting documentation
+
+For more information, see the following topics in the in the VMware NSX-T documentation:
+
+[Create an NSX Edge Cluster](https://docs.vmware.com/en/VMware-NSX-T/2.2/com.vmware.nsxt.install.doc/GUID-898099FC-4ED2-4553-809D-B81B494B67E7.html)
+
+## Prerequisites
+
+These instructions assume you have completed the following prerequisites:
+
+- Part 1: Deploy NSX Manager					
+- Part 2: Deploy NSX Controllers																	
+- Part 3: Create NSX Clusters	
+- Part 4: Deploy NSX Edge Nodes
+- Part 5: Register NSX Edge Nodes
+- Part 6: Enable Repository Service for VIB on NSX Manager 
+- Part 7: Create TEP IP Pool
+- Part 8: Create Overlay TZ
+- Part 9: Create VLAN TZ
+- Part 10: Create Uplink Profile for Edge Nodes
+- Part 11: Create Transport Edge Nodes 
+
+###<a id='create-edge-tranport-node'></a>Create Edge Cluster
+
+1. Log in to the NSX Manager web interface (`https://<NSX Manager IP>`).
+
+1. Go to Fabric > Nodes > Edge Clusters.
+
+1. Click Add.
+
+1. Add new Edge Cluster:
+
+	Name: `edgecluster1`
+	Transport Nodes: `edge-TN1` and `edge-TN2`
+
+  <img src="images/nsxt/nsx-misc/edge-cluster-01.png">
+
+1. Click Save.
+
+##<a id='verify-tz-vlan'></a> Verify Edge Nodes
+
+1. Select Fabric > Nodes > Edge Clusters.
+
+1. Verify that you see the new Edge Cluster.
+
+  <img src="images/nsxt/nsx-misc/edge-cluster-02.png">
+
+1. Select edgecluster1 > Related > Transport Nodes.
+
+Verify that all Edge Transport Nodes are part of the Edge Cluster.
+
+  <img src="images/nsxt/nsx-misc/edge-cluster-03.png">
+
+1. SSH to NSX Edge Node 1.
+
+1. Run the following commands and verify proper connectivity for Edge Node 1.
+
+		nsx-edge-1> get vteps
+
+		nsx-edge-1> get host-switches
+
+		nsx-edge-1> get edge-cluster status
+
+		nsx-edge-1> get controller sessions
+
+1. SSSH to NSX Edge Node 2.
+
+1. Run the following commands and verify proper connectivity for Edge Node 2.
+
+		nsx-edge-2> get vteps
+
+		nsx-edge-2> get host-switches
+
+		nsx-edge-2> get edge-cluster status
+
+		nsx-edge-2> get controller sessions
+
+1. Verify TEP to TEP connectivity (Edge-TN1 to Edge-TN2).
+
+		nsx-edge-1> get logical-router
+
+		nsx-edge-1> vrf 0
+
+		nsx-edge-1(vrf)> ping 23.23.23.2
+
+
+
+
+

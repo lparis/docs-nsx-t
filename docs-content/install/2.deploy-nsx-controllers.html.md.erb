@@ -1,0 +1,102 @@
+---
+title: Deploy NSX Controllers
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+This topic describes how to deploy NSX Manager for use with PKS.
+
+The NSX Controller provides the communications plane for NSX-T components. You must deploy at least 1 NSX Controller for PKS; 3 NSX Controllers are recommended. For production environments, 3 NSX Controllers are required. Repeat these instructions for each NSX Controller you intend to install.
+
+## Supporting documentation
+
+These instructions use the vSphere Web Client (FLEX) to perform the installation of NSX Manager. For additional methods of deployment, see the following topics in the in the VMware NSX-T documentation:
+
+- [Deploy NSX Controllers using the vSphere client](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-24428FD4-EC8F-4063-9CF9-D8136740963A.html)
+- [Deploy NSX Controllers using the ovftool CLI](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-B7C068CD-F5C4-4C18-B2E3-539FCA5FACAA.html)
+
+## Prerequisites
+
+These instructions assume you have completed the following prerequisites:
+
+- Part 1: Deploy NSX Manager          
+
+## <a id='deploy-nsx-controller'></a>Deploy NSX Controller
+
+Complete the following procedure for each NSX Controller you intend to deploy.
+
+1.  Download the NSX Controller OVA file (NSX-controller.ova), or obtain a network location.
+
+1.  Log in to vCenter and select Deploy OVF Template.
+<img src="images/nsxt/nsx-manager/install-nsx-controller-01.png">
+
+1.  Select template. Browse to and select the NSX Controller OVA file, or enter a network path.
+<img src="images/nsxt/nsx-manager/install-nsx-controller-02.png">
+
+1.  Select name and location. Enter VM name nsx-controller-1 and select the Datacenter.
+<img src="images/nsxt/nsx-manager/install-nsx-controller-03.png">
+
+1.  Select a resource. Select the NSX-MGMT resource pool where you deployed NSX Manager.
+<img src="images/nsxt/nsx-manager/install-nsx-controller-04.png">
+
+1.  Review details. Check your settings up to this point.
+<img src="images/nsxt/nsx-manager/install-nsx-controller-05.png">
+
+1.  Select storage. Specify the storage format, policy, and datastore. This will depend on the type of storage you have set up for your vSphere environment.
+<img src="images/nsxt/nsx-manager/install-nsx-controller-06.png">
+
+1.  Select networks. Choose the standard network, typically called VM Network.
+<img src="images/nsxt/nsx-manager/install-nsx-controller-07.png">
+
+1.  Configure the following Application properties for the NSX Controller VM.
+  - Enter the password for NSX CLI administrator.
+  - Enter the user name (default admin) for the NSX CLI administrator.
+  - Enter the password for the NSX CLI auditor.
+  - Enter the user name (default audit) for the NSX CLI auditor. 
+  - Enter the password for the root user of the VM.
+
+  <img src="images/nsxt/nsx-manager/install-nsx-controller-08.png">
+  <img src="images/nsxt/nsx-manager/install-nsx-controller-09.png">
+
+1.  Configure DNS and networking properties:
+  - Enter the IP address for the DNS server for your environment.
+  - Typically you don’t need to provide the Domain Search List.
+  - Enter the Default IPv4 Gateway, for example: 10.40.206.125.
+  - Enter the hostname for this VM, for example: nsx-manager.
+  - Enter the IP address for the first interface, for example: 10.40.206.2.
+  - Enter the netmask IP address for the first interface, for example: 255.255.255.128.
+
+  <img src="images/nsxt/nsx-manager/install-nsx-controller-10.png">
+
+1.  Services Configuration
+  - Select Allow root SSH logins.
+  - Select Enable SSH.
+  - Enter the IP address for the NTP server, such as 10.113.60.175.
+
+  <img src="images/nsxt/nsx-manager/install-nsx-controller-11.png">
+
+1.  Ready to complete. Click Finish to deploy the VM.
+
+  <img src="images/nsxt/nsx-manager/install-nsx-controller-12.png">
+
+## <a id='verify-nsx-controller-deploy'></a>Verify NSX Controller Deployment
+
+1.  Power on the VM. Once the VM is deployed, it is powered off. Power on the VM.
+
+1.  Ping the VM. 
+    Get the IP address for the NSX Controller from the Summary tab in vCenter. You must use the routable IP. If necessary click View all X IP addresses to reveal the proper IP address. Verify that you can ping the host (ping 10.196.188.22, for example).
+
+      <img src="images/nsxt/nsx-manager/install-nsx-controller-13.png">
+
+1. SSH to the VM. 
+   Use the IP address for the NSX Controller to remotely connect using SSH. From Unix hosts use the command ssh admin@10.196.188.22, for example. On Windows use Putty and provide the IP address. Enter the CLI admin user name and password that you defined in the Customize template > Application section.
+
+     <img src="images/nsxt/nsx-manager/install-nsx-controller-14.png">
+
+1. Review NSX CLI usage.
+   Once you are logged into the NSX Controller VM, enter ? to view the command usage and options for the NSX CLI.
+
+1. Install additional NSX Controllers. 
+   Repeat the same set of instructions to install, configure, and verify NSX Controller 2 and 3 (NSX-CTRL-2 and NSX-CTRL-3).
+

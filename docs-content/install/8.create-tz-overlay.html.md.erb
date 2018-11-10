@@ -1,0 +1,51 @@
+---
+title: Create Overlay Transport Zone for PKS
+owner: NSX-T
+---
+
+<strong><%= modified_date %></strong>
+
+In this section you create the following NSX transport zone (TZ) required for PKS:
+
+  * Overlay TZ (`TZ-Overlay`) for PKS control plane services and Kubernetes clusters associated with associated with VDS `hostswitch1`.
+
+## Supporting documentation
+
+For more information, see the following topic in the in the VMware NSX-T documentation:
+
+- [Create Transport Zones](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html) in the VMware NSX-T documentation.
+
+## Prerequisites
+
+- Part 1: Deploy NSX Manager (= NSX Unified Appliance)					
+- Part 2: Deploy NSX Controllers																	
+- Part 3: Create NSX Cluster (Management Plane and Cluster Control Plane)	
+- Part 4: Deploy NSX Edge Nodes
+- Part 5: Register NSX Edge Nodes
+- Part 6: Enable Repository Service for VIB on NSX Manager 
+- Part 7: Create TEP IP Pool
+
+##<a id='create-tz-overlay'></a> Create Transport Zone Overlay (TZ-Overlay)
+
+1. Log in to the NSX Manager Web UI (https://<NSX Manager IP>).
+
+1. Go to Fabric > Transport Zones.
+
+1. Click Add.
+
+1. Create new overlay TZ as follows:
+
+	Name: `TZ-Overlay`
+	Host Switch Name: `hostswitch1`
+	Traffic Type: `Overlay`
+
+  <img src="images/nsxt/tep/tz-overlay-01.png">
+
+1. Click Save.
+
+##<a id='create-tz-overlay'></a> Verify TZ-Overlay
+
+1. Verify that you see the TZ-Ovwerlay transport zone:
+
+  <img src="images/nsxt/tep/tz-overlay-02.png">
+

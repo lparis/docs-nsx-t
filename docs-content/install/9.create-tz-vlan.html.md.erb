@@ -1,0 +1,50 @@
+---
+title: Create VLAN Transport Zone for PKS
+owner: NSX-T
+---
+
+<strong><%= modified_date %></strong>
+
+In this section you create the following NSX transport zone (TZ) required for PKS:
+
+  * VLAN TZ (`TZ-VLAN`) for NSX Edge Node uplinks (ingress/egress) for PKS Kubernetes clusters associated with VDS `hostswitch2`.
+
+## Supporting documentation
+
+[Create Transport Zones](https://docs.vmware.com/en/VMware-NSX-T-Data-Center/2.3/com.vmware.nsxt.install.doc/GUID-F739DC79-4358-49F4-9C58-812475F33A66.html) in the VMware NSX-T documentation.
+
+## Prerequisites
+
+- Part 1: Deploy NSX Manager (= NSX Unified Appliance)					
+- Part 2: Deploy NSX Controllers																	
+- Part 3: Create NSX Cluster (Management Plane and Cluster Control Plane)	
+- Part 4: Deploy NSX Edge Nodes
+- Part 5: Register NSX Edge Nodes
+- Part 6: Enable Repository Service for VIB on NSX Manager 
+- Part 7: Create TEP IP Pool
+- Part 8: Create Overlay TZ
+
+##<a id='create-tz-vlan'></a> Create Transport Zone for VLAN (TZ-VLAN)
+
+1. Log in to the NSX Manager web interface (`https://<NSX Manager IP>`).
+
+1. Go to Fabric > Transport Zones.
+
+1. Click Add.
+
+1. Create a VLAN TZ as follows:
+
+	Name: TZ-VLAN
+	Host Switch Name: hostswitch2
+	Traffic Type: VLAN
+
+  <img src="images/nsxt/tep/tz-vlan-01.png">
+
+1. Click Save.
+
+##<a id='verify-tz-vlan'></a> Verify TZ-VLAN
+
+1. Verify that you see the TZ-VLAN transport zone:
+
+  <img src="images/nsxt/tep/tz-vlan-02.png">
+

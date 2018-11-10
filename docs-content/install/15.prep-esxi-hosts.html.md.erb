@@ -1,0 +1,110 @@
+---
+title: Prepare ESXi Servers for the PKS Compute Cluster
+owner: PKS
+---
+
+<strong><%= modified_date %></strong>
+
+In this section you prepare ESXi servers for the PKS Compute Cluster.
+
+These instructions assume that for each participating ESXi host the ESXi hypervisor is installed and the vmk0 is configured.
+
+In addition, each host must have at least one **free nic/vmnic** not already used by other vSwitches on the ESXi host for use with NSX Host Transport Nodes. Make sure vmnic1 (second physical interface) of the hosts are not used. NSX will take ownership of it (opaque NSX vswitch will use it as uplink).
+
+## Supporting documentation
+
+For more information, see [Add a Hypervisor Host to the NSX-T Fabric](https://docs.vmware.com/en/VMware-NSX-T/2.2/com.vmware.nsxt.install.doc/GUID-8C0EEC08-3A63-4918-A5E2-7A94AD50B0E6.html) in the VMware NSX-T documentation. 
+
+## Prerequisites
+
+These instructions assume you have completed the following prerequisites:
+
+- Part 1: Deploy NSX Manager          
+- Part 2: Deploy NSX Controllers                                  
+- Part 3: Create NSX Clusters 
+- Part 4: Deploy NSX Edge Nodes
+- Part 5: Register NSX Edge Nodes
+- Part 6: Enable Repository Service for VIB on NSX Manager 
+- Part 7: Create TEP IP Pool
+- Part 8: Create Overlay TZ
+- Part 9: Create VLAN TZ
+- Part 10: Create Uplink Profile for Edge Nodes
+- Part 11: Create Transport Edge Nodes
+- Part 12: Create Edge Cluster
+- Part 13: Create T0 Router
+- Part 14: Configure Edge Node HA
+
+##<a id='add-esxi-host'></a>Add ESXi Host to NSX-T Fabric
+
+Complete the following operation for each ESXi host to be used by the PKS Compute Cluster.
+
+1. Go to Fabric > Nodes > Hosts.
+
+1. Click Add.
+
+1. Create new host:
+
+	IP Address: 10.115.40.72
+	OS: ESXi
+	Username: root
+	Password: PASSWORD
+
+  <img src="images/nsxt/nsx-misc/esxi-prep-01">
+
+1. Click on Save.
+
+1. Click Yes if the following invalid thumbprint message appears.
+
+  <img src="images/nsxt/nsx-misc/esxi-prep-02">
+
+1. NSX will install VIBs on the ESXi host. Momentiarily you should see the new defined host.
+
+	Deployment status should show "NSX Installed" and Manager Connectivity should show "Up".
+
+  <img src="images/nsxt/nsx-misc/esxi-prep-03">
+
+##<a id='create-tn'></a>Create Transport Node
+
+1. Go to Fabric > Nodes > Transport Nodes
+
+1. Click on Add.
+
+1. Create a new TN:
+
+	Name: ESXi-COMP-1-TN
+	Node: ESXi-COMP-1
+	TZ: TZ-Overlay
+
+  <img src="images/nsxt/nsx-misc/esxi-prep-04">
+
+1. Select the Host Switches tab.
+
+1. Configure Host Switch:
+
+	Host Switch Name: `hostswitch1`
+	Uplink Profile: `nsx-default-uplink-hostswitch-profile`
+	IP Assignment: `Use IP Pool`
+	IP POOL: `TEP-ESXi-POOL`
+	Physical NICs: `vmnic1`
+
+  <img src="images/nsxt/nsx-misc/esxi-prep-05">
+
+1. Click Save.
+
+##<a id='create-tn'></a>Verify ESXi Host Preparation for PKS Compute Cluster
+
+1. Verify that you see the ESXi TN:
+
+  <img src="images/nsxt/nsx-misc/esxi-prep-06">
+
+  <img src="images/nsxt/nsx-misc/esxi-prep-07">
+
+    <p class="note"><strong>Note</strong>: If you are using NSX-T 2.3, the status should be up. If you are using NSX-T 2.2, the status may incorectly show as down (because the Tunnel Status is Down. Verify TEP communications as described next.</p>
+
+1. Make sure the NSX TEP vmk is created on ESXi host and TEP to TEP communication (with Edge TN for instance) works.
+
+		[root@ESXi-1:~] esxcfg-vmknic -l
+
+		[root@ESXi-1:~] vmkping ++netstack=vxlan 23.23.23.1 -d -s 1500
+
+	Where the IP is the IP of hte vmk10 interface.
