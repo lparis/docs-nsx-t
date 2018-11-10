@@ -1,20 +1,15 @@
 ---
-title: Configure Edge Nodes to Support HA
+title: Configure Edge Nodes for HA
 owner: NSX-T
 ---
 
 <strong><%= modified_date %></strong>
 
-Complete the steps in this section to ensure proper configuration to ensure a working failover mode for Edge Nodes. If the T0 is not cofigured correctly for HA, failover to the standby Edge Node will not occur.
+This section provides instructions for configuring failover mode for NSX Edge Nodes. If the T0 Router is not correctly cofigured for HA, failover to the standby Edge Node will not occur.
 
 ![NSX Edge High Availability](images/vsphere/nsxt-edge-ha.png)
 
-To do this, create 2 uplinks on the T0 router:
-
-- 1 uplink attached to Edge TN1
-- 1 uplink attached to Edge TN2
-
-The IP used for the T0 uplink in the previous step (Part 13) will become the VIP HA.
+Proper configuration requires two new uplinks on the T0 router: one attached to Edge TN1, and the other attached to Edge TN2. In addition, you need to create a VIP that is the IP address used for the T0 uplink defined when the T0 Router was created.
 
   <img src="images/nsxt/nsx-misc/edge-node-ha-01.png">
 
